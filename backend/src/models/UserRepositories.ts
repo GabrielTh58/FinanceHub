@@ -1,18 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import { User } from "../core/users/User";
-import { Password } from "../core/shared/Password";
 
 export class UserRepository {
-    private prisma = new PrismaClient();
+    private prisma: PrismaClient;
 
-    async create(user: User): Promise<User> {
-        const hashedPassword = Password.hashPassword(user.password)
+    constructor() {
+        this.prisma = new PrismaClient();
+    }
 
+    async create(user: Omit<User, "id">): Promise<User> {
         return await this.prisma.user.create({
             data: {
                 name: user.name,
                 email: user.email,
-                password: hashedPassword,
+                password: user.password,
             }
         })
     }
@@ -34,13 +35,21 @@ export class UserRepository {
     async update(id: number, data: Partial<User>): Promise<User> {
         return await this.prisma.user.update({
            where: { id },
-           data
+           data: {
+               ...data
+           }
         })
     }
 
-    async delete(id: number): Promise<User> {
+    async deleteUser(id: number): Promise<User> {
+        const user = await this.findById(id);
+        if (!user) {
+            throw new Error("User not found.");
+        }
+
         return await this.prisma.user.delete({
             where: { id }
         })
     }
+
 }

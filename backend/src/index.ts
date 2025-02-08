@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-import userRoutes from "./routes";
+import authRoutes from "./routes/auth";
+import userRoutes from "./routes/users";
 
 dotenv.config();
 const app = express();
@@ -12,7 +13,8 @@ app.get("/", (req: any, res:any) => {
     res.send("Hello World")
 })
 
-app.use("/login", userRoutes);
+app.use("/auth", authRoutes);
+app.use("/users", userRoutes);
 
 const PORT = 5000;
 app.listen(PORT, ()=>{
